@@ -1,0 +1,9 @@
+CREATE TYPE <%= @type_name %> AS (
+<% if @fields.any? -%>
+<% @fields.each_with_index do |field, index| -%>
+  <%= field[:name] %> <%= field[:type] %><%= index == @fields.length - 1 ? '' : ',' %>
+<% end -%>
+<% else -%>
+  value text
+<% end -%>
+);

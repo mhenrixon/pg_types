@@ -1,0 +1,5 @@
+class CreateType<%= @type_name.camelize %> < ActiveRecord::Migration<%= migration_version %>
+  def change
+    create_type "<%= @type_name %>", version: <%= @version %>
+  end
+end

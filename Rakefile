@@ -22,11 +22,11 @@ namespace :db do
     )
 
     begin
-      ActiveRecord::Base.connection.drop_database("pg_aggregates_test")
+      ActiveRecord::Base.connection.drop_database("pg_types_test")
     rescue StandardError
       nil
     end
-    ActiveRecord::Base.connection.create_database("pg_aggregates_test")
+    ActiveRecord::Base.connection.create_database("pg_types_test")
   end
 end
 

@@ -20,6 +20,10 @@ ActiveRecord::Base.logger = Logger.new($stdout) if ENV["DEBUG"]
 
 # Helper methods for version compatibility
 module VersionHelper
+  def rails_8_or_newer?
+    ActiveRecord.version >= Gem::Version.new("8.0.0")
+  end
+
   def rails_7_or_newer?
     ActiveRecord.version >= Gem::Version.new("7.0.0")
   end
@@ -32,8 +36,14 @@ module VersionHelper
     stream = StringIO.new
 
     # The most reliable approach is to check for method availability rather than version
-    if ActiveRecord::Base.connection_pool.respond_to?(:create_schema_dumper)
-      # Rails 8.0+ uses connection_pool directly and it has create_schema_dumper
+    if rails_8_or_newer?
+      # Rails 8.0+ uses connection_pool and with_connection
+      ActiveRecord::SchemaDumper.dump(
+        ActiveRecord::Base.connection_pool,
+        stream
+      )
+    elsif ActiveRecord::Base.connection_pool.respond_to?(:create_schema_dumper) # rubocop:disable Lint/DuplicateBranch
+      # Some versions use connection_pool directly and it has create_schema_dumper
       ActiveRecord::SchemaDumper.dump(
         ActiveRecord::Base.connection_pool,
         stream
@@ -43,8 +53,7 @@ module VersionHelper
       dumper = ActiveRecord::Base.connection.schema_dumper
       dumper.dump(stream)
     else
-      # Fallback for any other version - this handles both the case where connection has
-      # create_schema_dumper and where we need to fall back to the basic approach
+      # Fallback for any other version
       ActiveRecord::SchemaDumper.dump(
         ActiveRecord::Base.connection,
         stream

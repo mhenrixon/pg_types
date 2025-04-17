@@ -10,11 +10,20 @@ require_relative "pg_types/schema_dumper"
 require_relative "pg_types/railtie"
 
 module PgTypes
+  module_function
+
   class Error < StandardError; end
 
-  class << self
-    def database
-      ActiveRecord::Base.connection
-    end
+  def load
+    # Add schema statements and command recorder
+    ActiveRecord::ConnectionAdapters::AbstractAdapter.include PgTypes::SchemaStatements
+    ActiveRecord::Migration::CommandRecorder.include PgTypes::CommandRecorder
+
+    # Hook into the schema dumper
+    ActiveRecord::SchemaDumper.prepend PgTypes::SchemaDumper
+  end
+
+  def database
+    ActiveRecord::Base.connection
   end
 end

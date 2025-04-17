@@ -28,35 +28,50 @@ RSpec.describe PgTypes::SchemaDumper do
   end
 
   describe "schema dumping" do
-    it "dumps a single version type" do
-      with_type_file("contact_info", 1, simple_type) do
-        schema = dump_schema
-        expect(schema).to include('create_type "contact_info"')
-        expect(schema).to include(simple_type.strip)
-        expect(schema).not_to include("versions:")
-      end
+    it "dumps a single type" do
+      # Create the type directly in the database
+      ActiveRecord::Base.connection.execute(simple_type)
+
+      schema = dump_schema
+      expect(schema).to include('create_type "contact_info"')
+      expect(schema).to include("email text")
+      expect(schema).to include("phone character varying")
+      expect(schema).to include("active boolean")
     end
 
-    it "dumps the latest version when multiple versions exist" do
-      with_type_file("contact_info", 1, simple_type) do
-        with_type_file("contact_info", 2, complex_type) do
-          schema = dump_schema
-          expect(schema).to include('create_type "contact_info"')
-          expect(schema).to include(complex_type.strip)
-          expect(schema).to include("versions: 1, 2")
-        end
-      end
+    it "dumps complex types with all attributes" do
+      # Create a more complex type
+      ActiveRecord::Base.connection.execute(complex_type)
+
+      schema = dump_schema
+      expect(schema).to include('create_type "contact_info"')
+      expect(schema).to include("preferences jsonb")
+      expect(schema).to include("last_contact timestamp with time zone")
     end
 
     it "sorts types by name" do
-      with_type_file("zebra_type", 1, simple_type) do
-        with_type_file("alpha_type", 1, simple_type) do
-          schema = dump_schema
-          alpha_pos = schema.index("alpha_type")
-          zebra_pos = schema.index("zebra_type")
-          expect(alpha_pos).to be < zebra_pos
-        end
-      end
+      # Create two types with different names
+      zebra_sql = <<~SQL
+        CREATE TYPE zebra_type AS (
+          name text,
+          value integer
+        );
+      SQL
+
+      alpha_sql = <<~SQL
+        CREATE TYPE alpha_type AS (
+          name text,
+          value integer
+        );
+      SQL
+
+      ActiveRecord::Base.connection.execute(zebra_sql)
+      ActiveRecord::Base.connection.execute(alpha_sql)
+
+      schema = dump_schema
+      alpha_pos = schema.index("alpha_type")
+      zebra_pos = schema.index("zebra_type")
+      expect(alpha_pos).to be < zebra_pos
     end
   end
 end

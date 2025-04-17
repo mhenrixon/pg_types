@@ -31,15 +31,20 @@ module VersionHelper
   def dump_schema
     stream = StringIO.new
 
-    # Handle different ActiveRecord versions
-    if defined?(ActiveRecord.version) && ActiveRecord.version >= Gem::Version.new("8.0.0")
-      # Rails 8.0+ doesn't use with_connection anymore
+    # The most reliable approach is to check for method availability rather than version
+    if ActiveRecord::Base.connection_pool.respond_to?(:create_schema_dumper)
+      # Rails 8.0+ uses connection_pool directly and it has create_schema_dumper
       ActiveRecord::SchemaDumper.dump(
         ActiveRecord::Base.connection_pool,
         stream
       )
+    elsif ActiveRecord::Base.connection.respond_to?(:schema_dumper)
+      # Some versions use schema_dumper instead
+      dumper = ActiveRecord::Base.connection.schema_dumper
+      dumper.dump(stream)
     else
-      # Older Rails versions
+      # Fallback for any other version - this handles both the case where connection has
+      # create_schema_dumper and where we need to fall back to the basic approach
       ActiveRecord::SchemaDumper.dump(
         ActiveRecord::Base.connection,
         stream

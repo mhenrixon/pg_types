@@ -52,23 +52,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: false
+          bundler-cache: true
+          rubygems: latest
 
-      - uses: actions/cache@v4
-        with:
-          path: vendor/bundle
-          key: bundle-use-ruby-${{ runner.os }}-${{ matrix.ruby }}-rails-${{ matrix.rails }}-${{ hashFiles('**/Gemfile.lock', '**/gemfiles/rails_${{ matrix.rails }}.gemfile.lock') }}
-          restore-keys: |
-            bundle-use-ruby-${{ runner.os }}-${{ matrix.ruby }}-rails-${{ matrix.rails }}-
-      
-      - name: Bundle install
-        run: |
-          gem install bundler
-          bundle install
-          bundle exec appraisal install
-      
       - name: Run tests
-        run: bundle exec appraisal rails-${{ matrix.rails }} rspec
+        run: bundle exec rake spec
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

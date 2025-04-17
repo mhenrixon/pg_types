@@ -60,7 +60,9 @@ jobs:
           rubygems: latest
 
       - name: Run tests with correct gemfile
-        run: bundle exec rake spec
+        run: |
+          bundle check || bundle install
+          bundle exec rake spec
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

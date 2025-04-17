@@ -2,7 +2,15 @@
 
 # spec/spec_helper.rb
 require "bundler/setup"
+
+# Explicitly require standard libraries that might be needed
 require "logger"
+require "mutex_m"
+require "base64"
+require "bigdecimal"
+require "drb"
+
+# Now load Rails components
 require "active_record"
 require "pg_types"
 require "database_cleaner"

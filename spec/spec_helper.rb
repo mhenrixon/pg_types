@@ -35,7 +35,6 @@ module VersionHelper
   def dump_schema
     stream = StringIO.new
 
-    # The most reliable approach is to check for method availability rather than version
     if rails_8_or_newer?
       # Rails 8.0+ uses connection_pool and with_connection
       ActiveRecord::SchemaDumper.dump(

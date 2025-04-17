@@ -107,7 +107,17 @@ RSpec.describe PgTypes::SchemaStatements do
         connection.drop_type("contact_info", force: true)
       end.not_to raise_error
 
-      expect(connection.select_value("SELECT to_regclass('test_contacts')")).to be_nil
+      # Check if table exists using a more compatible approach
+      table_exists = connection.select_value(<<~SQL)
+        SELECT EXISTS (
+          SELECT 1 FROM pg_catalog.pg_class c
+          JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+          WHERE c.relname = 'test_contacts'
+          AND n.nspname = 'public'
+          AND c.relkind = 'r'
+        )
+      SQL
+      expect(table_exists).to be false
     end
   end
 end

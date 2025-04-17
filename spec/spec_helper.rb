@@ -2,10 +2,10 @@
 
 # spec/spec_helper.rb
 require "bundler/setup"
+require "logger"
 require "active_record"
 require "pg_types"
 require "database_cleaner"
-require "logger"
 require "pathname"
 
 # Set up a fake Rails.root

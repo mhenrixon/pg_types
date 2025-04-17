@@ -59,10 +59,14 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           rubygems: latest
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails }}.gemfile
 
-      - name: Bundle with Appraisal
+      - name: Bundle install
         run: |
-          bundle install
+          bundle check || bundle install
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails }}.gemfile
 
       - name: Run tests with correct gemfile
         run: |

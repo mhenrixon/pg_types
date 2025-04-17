@@ -57,12 +57,13 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: vendor/bundle
-          key: bundle-use-ruby-${{ matrix.os }}-${{ matrix.ruby-version }}-${{ hashFiles('**/Gemfile.lock') }}
+          key: bundle-use-ruby-${{ runner.os }}-${{ matrix.ruby }}-rails-${{ matrix.rails }}-${{ hashFiles('**/Gemfile.lock', '**/gemfiles/rails_${{ matrix.rails }}.gemfile.lock') }}
           restore-keys: |
-            bundle-use-ruby-${{ matrix.os }}-${{ matrix.ruby-version }}-
+            bundle-use-ruby-${{ runner.os }}-${{ matrix.ruby }}-rails-${{ matrix.rails }}-
       
       - name: Bundle install
         run: |
+          gem install bundler
           bundle install
           bundle exec appraisal install
       

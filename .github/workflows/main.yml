@@ -33,14 +33,15 @@ jobs:
       matrix:
         ruby: ["3.2", "3.3", "3.4"]
         rails: ["6.1", "7.0", "7.1", "8.0"]
+        continue-on-error: [false]
     
     services:
       postgres:
-        image: postgres:14
+        image: postgres:17-alpine
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
-          POSTGRES_DB: pg_types_test
+          POSTGRES_DB: pg_test
         ports:
           - 5432:5432
         options: >-

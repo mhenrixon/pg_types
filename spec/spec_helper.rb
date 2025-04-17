@@ -101,7 +101,7 @@ end
 def setup_database
   config = {
     adapter: "postgresql",
-    database: ENV.fetch("POSTGRES_DB", "pg_types_test"),
+    database: ENV.fetch("POSTGRES_DB", "pg_test"),
     username: ENV.fetch("POSTGRES_USER", "postgres"),
     password: ENV.fetch("POSTGRES_PASSWORD", "postgres"),
     host: ENV.fetch("POSTGRES_HOST", "localhost")

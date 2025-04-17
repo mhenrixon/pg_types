@@ -2,7 +2,15 @@
 
 # spec/spec_helper.rb
 require "bundler/setup"
+
+# Explicitly require standard libraries that might be needed
 require "logger"
+require "mutex_m"
+require "base64"
+require "bigdecimal"
+require "drb"
+
+# Now load Rails components
 require "active_record"
 require "pg_types"
 require "database_cleaner"
@@ -35,7 +43,6 @@ module VersionHelper
   def dump_schema
     stream = StringIO.new
 
-    # The most reliable approach is to check for method availability rather than version
     if rails_8_or_newer?
       # Rails 8.0+ uses connection_pool and with_connection
       ActiveRecord::SchemaDumper.dump(
@@ -102,7 +109,7 @@ end
 def setup_database
   config = {
     adapter: "postgresql",
-    database: ENV.fetch("POSTGRES_DB", "pg_types_test"),
+    database: ENV.fetch("POSTGRES_DB", "pg_test"),
     username: ENV.fetch("POSTGRES_USER", "postgres"),
     password: ENV.fetch("POSTGRES_PASSWORD", "postgres"),
     host: ENV.fetch("POSTGRES_HOST", "localhost")
